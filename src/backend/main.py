@@ -7,7 +7,6 @@ def main(server:Server):
     time.sleep(5)
     server.publish_action(action=0)
     time.sleep(5)
-    server.publish_action(action=2)
     server.disconnect()
 
 if __name__ == "__main__":
