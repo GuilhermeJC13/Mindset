@@ -10,6 +10,9 @@ import threading
 import certifi
 import paho.mqtt.client as mqtt
 import time
+import backend.constants as CONSTANTS
+
+POWER_THRESHOLD = 0.9
 
 # define request id
 QUERY_HEADSET_ID                    =   1
@@ -114,7 +117,7 @@ class Cortex(Dispatcher):
         self.mqtt_client.on_connect = on_connect
         
         self.mqtt_client.tls_set(certifi.where())
-        self.mqtt_client.connect("905ba2a15ab74555bdfc4340a1423f04.s1.eu.hivemq.cloud", 8883)
+        self.mqtt_client.connect(CONSTANTS.BROKER_ADRESS, CONSTANTS.PORT)
 
     def open(self):
         url = "wss://localhost:6868"
@@ -370,7 +373,12 @@ class Cortex(Dispatcher):
 
     def handle_stream_data(self, result_dic):
         if result_dic.get('com') != None:  
-            self.mqtt_client.publish('bri/command', result_dic['com'][0])  # sends mental command to mqtt broker
+            if (result_dic['com'][0] == 'right' and result_dic['com'][1] >= POWER_THRESHOLD):
+                print("Enviando 1 (acender)")
+                self.mqtt_client.publish(CONSTANTS.TOPIC, 1)
+            elif (result_dic['com'][0] == 'drop' and result_dic['com'][1] >= POWER_THRESHOLD):
+                print("Enviando 0 (apagar)")
+                self.mqtt_client.publish(CONSTANTS.TOPIC, 0)
             com_data = {}
             com_data['action'] = result_dic['com'][0]   # Mental command
             com_data['power'] = result_dic['com'][1]    # Mental command power
