@@ -10,9 +10,9 @@ import threading
 import certifi
 import paho.mqtt.client as mqtt
 import time
-import backend.constants as CONSTANTS
+import constants as CONSTANTS
 
-POWER_THRESHOLD = 0.9
+POWER_THRESHOLD = 0.85
 
 # define request id
 QUERY_HEADSET_ID                    =   1
@@ -113,10 +113,10 @@ class Cortex(Dispatcher):
         # For paho-mqtt 2.0.0, you need to set callback_api_version.
         # client = mqtt_client.Client(client_id=client_id, callback_api_version=mqtt_client.CallbackAPIVersion.VERSION2)
 
-        self.mqtt_client.username_pw_set(username, password)
-        self.mqtt_client.on_connect = on_connect
+        #self.mqtt_client.username_pw_set(username, password)
+        #self.mqtt_client.on_connect = on_connect
         
-        self.mqtt_client.tls_set(certifi.where())
+        #self.mqtt_client.tls_set(certifi.where())
         self.mqtt_client.connect(CONSTANTS.BROKER_ADRESS, CONSTANTS.PORT)
 
     def open(self):
@@ -374,18 +374,21 @@ class Cortex(Dispatcher):
     def handle_stream_data(self, result_dic):
         if result_dic.get('com') != None:  
             if (result_dic['com'][0] == 'right' and result_dic['com'][1] >= POWER_THRESHOLD):
-                print("Enviando 1 (acender)")
-                self.mqtt_client.publish(CONSTANTS.TOPIC, 1)
-            elif (result_dic['com'][0] == 'drop' and result_dic['com'][1] >= POWER_THRESHOLD):
-                print("Enviando 0 (apagar)")
-                self.mqtt_client.publish(CONSTANTS.TOPIC, 0)
+                print(f"Enviando 1 (acender) - Power {result_dic['com'][1]}")
+                self.mqtt_client.publish(CONSTANTS.TOPIC_LED, 1)
+            elif (result_dic['com'][0] == 'left' and result_dic['com'][1] >= POWER_THRESHOLD):
+                print(f"Enviando 0 (apagar) - Power {result_dic['com'][1]}")
+                self.mqtt_client.publish(CONSTANTS.TOPIC_LED, 0)
+            elif (result_dic['com'][0] == 'push' and result_dic['com'][1] >= POWER_THRESHOLD):
+                print(f"Enviando 0 (Buzz!!) - Power {result_dic['com'][1]}")
+                self.mqtt_client.publish(CONSTANTS.TOPIC_BUZZER, 1)
+
             com_data = {}
             com_data['action'] = result_dic['com'][0]   # Mental command
             com_data['power'] = result_dic['com'][1]    # Mental command power
             com_data['time'] = result_dic['time']       # Timestamp of the moment which the mental command was generated
             self.emit('new_com_data', data=com_data)
-            #print(com_data)
-            print("teste", result_dic['com'])
+            
         elif result_dic.get('fac') != None:
             self.mqtt_client.publish('bri/command', result_dic['fac'][1]) #sends upper action to mqtt broker
             fe_data = {}

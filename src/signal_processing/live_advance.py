@@ -243,7 +243,7 @@ class LiveAdvance():
              the format such as {'action': 'neutral', 'power': 0.0, 'time': 1590736942.8479}
         """
         data = kwargs.get('data')
-        print('mc data: {}'.format(data))
+        #print('mc data: {}'.format(data))
         
     def on_get_mc_active_action_done(self, *args, **kwargs):
         data = kwargs.get('data')

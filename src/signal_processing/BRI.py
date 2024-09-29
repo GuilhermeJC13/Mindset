@@ -5,7 +5,7 @@ CLIENT_ID = '7vPRhxTutkNjsKhZ9xn6YW6z6JJbXhYSh3NRx1YG'
 
 def main():
     workflow = LiveAdvance(app_client_id=CLIENT_ID, app_client_secret=CLIENT_SECRET)
-    workflow.start("embarcado")
+    workflow.start("guilherme")
 
 if __name__ == "__main__":
     main()
