@@ -11,8 +11,10 @@ import certifi
 import paho.mqtt.client as mqtt
 import time
 import constants as CONSTANTS
+from topicHandling import topic_list_handle
 
 POWER_THRESHOLD = 0.85
+i = 0
 
 # define request id
 QUERY_HEADSET_ID                    =   1
@@ -372,16 +374,19 @@ class Cortex(Dispatcher):
                 self.refresh_headset_list()
 
     def handle_stream_data(self, result_dic):
-        if result_dic.get('com') != None:  
+        if result_dic.get('com') != None:
+            
             if (result_dic['com'][0] == 'right' and result_dic['com'][1] >= POWER_THRESHOLD):
                 print(f"Enviando 1 (acender) - Power {result_dic['com'][1]}")
-                self.mqtt_client.publish(CONSTANTS.TOPIC_LED, 1)
+                self.mqtt_client.publish(CONSTANTS.TOPIC_LIST[i], 1)
+            
             elif (result_dic['com'][0] == 'left' and result_dic['com'][1] >= POWER_THRESHOLD):
                 print(f"Enviando 0 (apagar) - Power {result_dic['com'][1]}")
-                self.mqtt_client.publish(CONSTANTS.TOPIC_LED, 0)
+                self.mqtt_client.publish(CONSTANTS.TOPIC_LIST[i], 0)
+            
             elif (result_dic['com'][0] == 'push' and result_dic['com'][1] >= POWER_THRESHOLD):
-                print(f"Enviando 0 (Buzz!!) - Power {result_dic['com'][1]}")
-                self.mqtt_client.publish(CONSTANTS.TOPIC_BUZZER, 1)
+                topic_list_handle()
+                
 
             com_data = {}
             com_data['action'] = result_dic['com'][0]   # Mental command
