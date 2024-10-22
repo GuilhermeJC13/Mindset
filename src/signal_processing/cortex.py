@@ -378,9 +378,12 @@ class Cortex(Dispatcher):
             
             elif (result_dic['com'][0] == 'left' and result_dic['com'][1] >= CONSTANTS.POWER_THRESHOLD):
                 CONSTANTS.TOPIC_IDX = (CONSTANTS.TOPIC_IDX + 1) % len(CONSTANTS.TOPIC_LIST) # Traverses through the topic list (circular index)
-                warning_string = f"Switching to topic: '{CONSTANTS.TOPIC_LIST[CONSTANTS.TOPIC_IDX]}'"
-                print(warning_string)
-                self.mqtt_client.publish(CONSTANTS.DISPLAY_TOPIC, warning_string)
+                topic_name = CONSTANTS.TOPIC_LIST[CONSTANTS.TOPIC_IDX].replace("mindset/", "")
+                notification_string = f">> '{topic_name}'"
+                print(notification_string)
+                self.mqtt_client.publish(CONSTANTS.DISPLAY_TOPIC, notification_string)
+                
+            time.sleep(1)
 
             com_data = {}
             com_data['action'] = result_dic['com'][0]   # Mental command

@@ -6,4 +6,4 @@ TOPIC_LIST = ["mindset/led", "mindset/buzzer", "mindset/relay"]
 DISPLAY_TOPIC = "mindset/display"
 POWER_THRESHOLD = 0.7
 TOPIC_IDX = 0
-PERIPHERAL_TOGGLE = False
+TOPIC_TOGGLE = False
