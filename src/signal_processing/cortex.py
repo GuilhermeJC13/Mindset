@@ -11,8 +11,9 @@ import paho.mqtt.client as mqtt
 import time
 import constants as CONSTANTS
 
-POWER_THRESHOLD = 0.85
+POWER_THRESHOLD = 0.7
 TOPIC_IDX = 0
+PERIPHERAL_TOGGLE = False
 
 # define request id
 QUERY_HEADSET_ID                    =   1
@@ -375,15 +376,12 @@ class Cortex(Dispatcher):
         if result_dic.get('com') != None:
             
             if (result_dic['com'][0] == 'right' and result_dic['com'][1] >= POWER_THRESHOLD):
-                print(f"Enviando 1 (acender) - Power {result_dic['com'][1]}")
+                TOPIC_TOGGLE = (not TOPIC_TOGGLE) # Switching between 0 and 1 (toggling)
+                print(f"Enviando {int(TOPIC_TOGGLE)} - Power {result_dic['com'][1]}")
                 self.mqtt_client.publish(CONSTANTS.TOPIC_LIST[TOPIC_IDX], 1)
             
             elif (result_dic['com'][0] == 'left' and result_dic['com'][1] >= POWER_THRESHOLD):
-                print(f"Enviando 0 (apagar) - Power {result_dic['com'][1]}")
-                self.mqtt_client.publish(CONSTANTS.TOPIC_LIST[TOPIC_IDX], 0)
-            
-            elif (result_dic['com'][0] == 'push' and result_dic['com'][1] >= POWER_THRESHOLD):
-                TOPIC_IDX = (TOPIC_IDX + 1) % len(CONSTANTS.TOPIC_LIST)
+                TOPIC_IDX = (TOPIC_IDX + 1) % len(CONSTANTS.TOPIC_LIST) # Traverses through the topic list (circular index)
 
             com_data = {}
             com_data['action'] = result_dic['com'][0]   # Mental command
